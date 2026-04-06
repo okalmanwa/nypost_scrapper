@@ -1,0 +1,302 @@
+/* NY Post workflow UI */
+:root {
+  --bg: #eef1f6;
+  --surface: #ffffff;
+  --text: #141823;
+  --muted: #5c6578;
+  --accent: #0d47a1;
+  --accent-soft: #e8eef9;
+  --border: #d8dee9;
+  --radius: 14px;
+  --shadow: 0 8px 32px rgba(20, 24, 35, 0.08);
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.page {
+  max-width: min(92vw, 38rem);
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 1.5rem) 3rem;
+}
+
+/* Job status: a bit wider than home so the log is readable */
+.page-wide {
+  max-width: min(94vw, 48rem);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.35rem 0;
+}
+
+h1 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 0.98rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  padding: 1.75rem 1.75rem 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.card h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.65rem 0;
+}
+
+.steps {
+  margin: 0 0 1rem 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.steps li {
+  margin: 0.4rem 0;
+}
+.steps strong {
+  color: var(--text);
+}
+
+.notice {
+  background: var(--accent-soft);
+  border: 1px solid #c5d4ef;
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  font-size: 0.88rem;
+  color: #1a2d4d;
+  margin: 0 0 1.25rem 0;
+}
+.notice h2 {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin: 0 0 0.5rem 0;
+}
+.notice ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.notice li {
+  margin: 0.4rem 0;
+}
+
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 1.1rem 0 0.4rem 0;
+}
+label:first-of-type {
+  margin-top: 0;
+}
+
+select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+select:hover {
+  border-color: #aab6c9;
+}
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.2);
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.65rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(180deg, #1565c0 0%, #0d47a1 100%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.35);
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 4px 14px rgba(13, 71, 161, 0.4);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+
+.foot {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+code {
+  font-size: 0.88em;
+  background: #e8ecf2;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Job status */
+.job-hero {
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 55%, #1976d2 100%);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem 1.75rem 1.6rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow);
+}
+.job-hero .eyebrow {
+  color: rgba(255, 255, 255, 0.75);
+}
+.job-hero h1 {
+  color: #fff;
+  font-size: 1.85rem;
+  margin-bottom: 0.25rem;
+}
+.job-years {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0.35rem 0 0.15rem 0;
+  opacity: 0.98;
+}
+.job-step {
+  font-size: 0.95rem;
+  opacity: 0.92;
+  margin: 0.5rem 0 0 0;
+}
+.job-hero .status-line {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 0.95rem;
+}
+.job-hero .status-line strong {
+  font-weight: 700;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.status-pill.running {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+.status-pill.done {
+  background: #c8e6c9;
+  color: #1b5e20;
+}
+.status-pill.failed {
+  background: #ffcdd2;
+  color: #b71c1c;
+}
+
+#progressWrap {
+  margin: 0 0 1rem 0;
+}
+progress {
+  width: 100%;
+  height: 1.1rem;
+  border-radius: 6px;
+  overflow: hidden;
+}
+#progressLabel {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin: 0.5rem 0 0 0;
+}
+
+.hint {
+  font-size: 0.88rem;
+  color: var(--muted);
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin: 0 0 1rem 0;
+  border: 1px solid #c5d4ef;
+}
+
+pre#log {
+  background: #1e2430;
+  color: #e8eaef;
+  padding: 1.1rem 1.15rem;
+  border-radius: 10px;
+  overflow: auto;
+  max-height: 50vh;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  margin: 0;
+}
+
+.err-line {
+  color: #b71c1c;
+  font-size: 0.92rem;
+  margin: 0 0 0.75rem 0;
+}
+
+.meta-missing {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}

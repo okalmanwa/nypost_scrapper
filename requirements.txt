@@ -1,0 +1,7 @@
+# NY Post workflow scripts (fetch, scrape, clean)
+requests>=2.28
+beautifulsoup4>=4.11
+lxml>=4.9
+
+# Optional: local web UI (workflow_app.py)
+flask>=3.0

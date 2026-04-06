@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+    {% if meta %}{{ meta.person }} {{ meta.y0 }}-{{ meta.y1 }}{% else %}Job{% endif %}
+  </title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+  <div class="page page-wide">
+    <div class="job-hero">
+      {% if meta %}
+      <p class="eyebrow">Your assignment</p>
+      <h1>{{ meta.person }}</h1>
+      <p class="job-years">Scraping years {{ meta.y0 }} to {{ meta.y1 }}</p>
+      <p class="job-step">Only article URLs dated in this range are included (fetch, scrape, and clean all respect these years).</p>
+      {% if workflow_display %}
+      <p class="job-step" style="margin-top: 0.85rem;"><strong>Current step:</strong> {{ workflow_display }}</p>
+      {% endif %}
+      {% else %}
+      <p class="eyebrow">Job</p>
+      <h1>Run status</h1>
+      <p class="meta-missing">If you do not see your name and years, start a new run from the home page after restarting the server.</p>
+      {% endif %}
+      <div class="status-line">
+        Status:
+        <span id="statusBadge" class="status-pill {{ status }}">{{ status }}</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="progressWrap">
+        <label style="margin-top: 0;">Progress</label>
+        <progress id="progressBar" max="100"></progress>
+        <p id="progressLabel">Loading…</p>
+      </div>
+      <p id="errLine" class="err-line" style="display:{% if error %}block{% else %}none{% endif %};">{{ error or "" }}</p>
+      {% if status == 'running' %}
+      <p class="hint">You can switch tabs. Closing this tab does not stop the job. Do not close the terminal where <code>python workflow_app.py</code> is running.</p>
+      {% endif %}
+      <p style="margin: 0;"><a href="{{ url_for('index') }}">&larr; Back to home</a></p>
+    </div>
+
+    <div class="card" style="padding-top: 1.25rem;">
+      <p class="eyebrow" style="margin-bottom: 0.5rem;">Log</p>
+      <pre id="log">{{ log_text or "Starting…" }}</pre>
+    </div>
+  </div>
+
+  <script>
+    const jobId = {{ job_id | tojson }};
+    const bar = document.getElementById("progressBar");
+    const label = document.getElementById("progressLabel");
+    const logPre = document.getElementById("log");
+    const badge = document.getElementById("statusBadge");
+    const errLine = document.getElementById("errLine");
+
+    async function poll() {
+      try {
+        const r = await fetch("/api/job/" + encodeURIComponent(jobId) + "/progress");
+        if (!r.ok) return;
+        const data = await r.json();
+        badge.textContent = data.status;
+        badge.className = "status-pill " + data.status;
+        if (data.error) {
+          errLine.textContent = data.error;
+          errLine.style.display = "block";
+        }
+        if (data.percent === null || data.percent === undefined) {
+          bar.removeAttribute("value");
+        } else {
+          bar.value = Math.min(100, Math.max(0, data.percent));
+        }
+        label.textContent = data.label || "…";
+        if (data.log) logPre.textContent = data.log;
+        if (data.status !== "running") {
+          clearInterval(timer);
+          if (data.percent !== null && data.percent !== undefined) {
+            bar.value = 100;
+          }
+        }
+      } catch (e) {
+        label.textContent = "Could not refresh progress.";
+      }
+    }
+    const timer = setInterval(poll, 1500);
+    poll();
+  </script>
+</body>
+</html>

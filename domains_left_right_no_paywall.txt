@@ -1,0 +1,2 @@
+# Format: domain,outlet,lean
+nypost.com,New York Post,right
