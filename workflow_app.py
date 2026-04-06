@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent
 RESULTS = BASE_DIR / "results"
 JOBS_DIR = RESULTS / "jobs"
 
-# Same year blocks as README (1999 through 2022, seven people).
+# Year ranges for the web UI name dropdown (edit to match your project).
 TEAM: dict[str, dict] = {
     "Salena": {"slug": "salena", "start": 1999, "end": 2002},
     "Joice": {"slug": "joice", "start": 2003, "end": 2005},
