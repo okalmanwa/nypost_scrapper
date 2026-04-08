@@ -4,23 +4,9 @@ Scripts to collect article URLs from the NY Post archive, download HTML for each
 
 ---
 
-## One-time setup
+## Web UI
 
-From this project folder:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-On Windows, activate with `.venv\Scripts\activate` instead of `source .venv/bin/activate`.
-
----
-
-## Web UI (optional)
-
-Local page to run the same steps as the CLI; logs go under `results/jobs/`.
+Run the pipeline from your browser. Logs go under `results/jobs/`.
 
 ```bash
 python workflow_app.py
@@ -52,7 +38,7 @@ Run the steps in order. Step 2 needs the CSV from step 1. Step 3 needs the CSV f
 
 ## Command-line usage
 
-Use the same `--start-year` and `--end-year` in fetch and scrape for a given run. Pick a **basename** for output files (examples use `NAME`) so parallel runs do not overwrite each other.
+If you prefer the terminal instead of the web UI, run the scripts directly. Use the same `--start-year` and `--end-year` in fetch and scrape for a given run. Pick a **basename** for output files (examples use `NAME`) so parallel runs do not overwrite each other.
 
 ### 1. Fetch URLs
 
@@ -103,20 +89,3 @@ python fetch_nypost_archive_urls.py --start-year 2010 --end-year 2015 --output r
 python nypost_scrape.py --input-urls results/nypost_urls_myrun.csv --start-year 2010 --end-year 2015 --targets-out results/nypost_targets_myrun.csv --scrape-out results/nypost_articles_myrun.csv --failures-out results/nypost_articles_myrun_failures.csv
 python clean_articles.py --input results/nypost_articles_myrun.csv --output results/nypost_articles_myrun_clean.csv --min-words 30
 ```
-
----
-
-## Combining outputs
-
-If you have multiple `*_clean.csv` files with the same columns, concatenate them or load them as separate tables in your analysis tool.
-
----
-
-## File map
-
-| Script | Role |
-|--------|------|
-| `fetch_nypost_archive_urls.py` | Build a URL list from the live archive |
-| `nypost_scrape.py` | Download HTML and extract article text to CSV |
-| `clean_articles.py` | Normalize and filter article bodies |
-| `workflow_app.py` | Optional local web UI (see Web UI above) |
