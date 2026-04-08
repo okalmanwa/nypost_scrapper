@@ -2,8 +2,8 @@
 """Download nypost.com articles from a URL CSV: every dated article URL in the year range
 (except paths matching ``BLOCK_RE``), then fetch in parallel.
 
-Requires: requests, beautifulsoup4 (lxml), urllib3. The ``is_opinion`` column is present but
-always empty; outlet and lean are fixed."""
+Requires: requests, beautifulsoup4 (lxml), urllib3. The ``is_opinion`` column is present and
+defaults to ``0`` (not classified); outlet and lean are fixed."""
 from __future__ import annotations
 
 import argparse
@@ -13,6 +13,7 @@ import threading
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from typing import Optional
 
 import requests
 from bs4 import BeautifulSoup
@@ -91,12 +92,16 @@ def write_targets(
     start_year: int,
     end_year: int,
     out_path: Path,
+    max_per_year: Optional[int] = None,
 ):
     out_path.parent.mkdir(parents=True, exist_ok=True)
     rows = []
-    blank = {"is_opinion": ""}
+    blank = {"is_opinion": "0"}
     for year in range(start_year, end_year + 1):
-        for u in urls_allowed(all_urls.get(year, [])):
+        allowed = urls_allowed(all_urls.get(year, []))
+        if max_per_year is not None and max_per_year > 0:
+            allowed = allowed[:max_per_year]
+        for u in allowed:
             rows.append({"url": u, "year": year, **blank})
     with out_path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=TARGET_FIELDS)
@@ -201,7 +206,7 @@ def scrape(
         fail_f.flush()
 
     def fail(u: str, year: str, err: str):
-        return {"url": u, "year": year, "is_opinion": "", "error": err}
+        return {"url": u, "year": year, "is_opinion": "0", "error": err}
 
     def ok_row(title: str, year: str, body: str, u: str):
         return {
@@ -211,7 +216,7 @@ def scrape(
             "lean": LEAN,
             "content": body,
             "url": u,
-            "is_opinion": "",
+            "is_opinion": "0",
         }
 
     def job(row: dict):
@@ -262,7 +267,7 @@ def main():
     ap.add_argument(
         "--targets-out",
         default="results/nypost_targets_2000_2025.csv",
-        help="Written before scraping: url, year, blank is_opinion.",
+        help="Written before scraping: url, year, is_opinion default 0.",
     )
     ap.add_argument(
         "--scrape-out",
@@ -276,13 +281,22 @@ def main():
     )
     ap.add_argument("--start-year", type=int, default=2000)
     ap.add_argument("--end-year", type=int, default=2025)
+    ap.add_argument(
+        "--max-per-year",
+        type=int,
+        default=0,
+        help="Cap targets per calendar year after BLOCK_RE filter (0 = no cap).",
+    )
     ap.add_argument("--workers", type=int, default=96)
     ap.add_argument("--timeout", type=int, default=20)
     ap.add_argument("--retries", type=int, default=3)
     args = ap.parse_args()
 
     by_year = load_urls(Path(args.input_urls))
-    n = write_targets(by_year, args.start_year, args.end_year, Path(args.targets_out))
+    cap = args.max_per_year if args.max_per_year and args.max_per_year > 0 else None
+    n = write_targets(
+        by_year, args.start_year, args.end_year, Path(args.targets_out), max_per_year=cap
+    )
     print(f"[TARGETS] wrote {n} targets to {args.targets_out} | targets saved")
     scrape(
         Path(args.targets_out),

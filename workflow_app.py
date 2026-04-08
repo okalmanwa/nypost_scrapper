@@ -7,14 +7,17 @@ authentication and a proper deployment setup.
 
 Usage (from project root):
 
-  pip install flask
   python workflow_app.py
 
-Then your browser should open http://127.0.0.1:5050 automatically (or open it manually).
+Dependencies from ``requirements.txt`` are installed automatically on startup (same
+Python as this process). If ``pip`` is missing, ``python -m ensurepip`` is tried.
+To skip: ``NYPOST_WORKFLOW_SKIP_PIP=1``. Then your browser
+should open http://127.0.0.1:5050 automatically (or open it manually).
 """
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -24,11 +27,104 @@ import uuid
 import webbrowser
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
-
 BASE_DIR = Path(__file__).resolve().parent
 RESULTS = BASE_DIR / "results"
 JOBS_DIR = RESULTS / "jobs"
+REQUIREMENTS_TXT = BASE_DIR / "requirements.txt"
+
+
+def _pip_available() -> bool:
+    r = subprocess.run(
+        [sys.executable, "-m", "pip", "--version"],
+        cwd=str(BASE_DIR),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return r.returncode == 0
+
+
+def _bootstrap_pip_with_ensurepip() -> bool:
+    """Try to install pip into this interpreter (stdlib ``ensurepip``). May fail if disabled (e.g. some Linux packages)."""
+    print("pip is not available; trying python -m ensurepip …", file=sys.stderr)
+    proc = subprocess.run(
+        [sys.executable, "-m", "ensurepip", "--upgrade", "--default-pip"],
+        cwd=str(BASE_DIR),
+        stdout=sys.stderr,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if proc.returncode == 0:
+        return True
+    proc = subprocess.run(
+        [sys.executable, "-m", "ensurepip", "--upgrade"],
+        cwd=str(BASE_DIR),
+        stdout=sys.stderr,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    return proc.returncode == 0
+
+
+def _print_pip_missing_help() -> None:
+    exe = sys.executable
+    print(
+        "\n"
+        "pip is not installed for this Python and could not be added automatically.\n"
+        "Options:\n"
+        f"  • Install pip for this interpreter:  {exe} -m ensurepip\n"
+        "  • Linux (Debian/Ubuntu):  sudo apt install python3-pip   (use your distro’s Python package)\n"
+        "  • Or install from: https://pip.pypa.io/en/stable/installation/\n"
+        "  • Then run:  pip install -r requirements.txt\n"
+        "  • Or skip auto-install and set NYPOST_WORKFLOW_SKIP_PIP=1 if you install deps another way.\n",
+        file=sys.stderr,
+    )
+
+
+def ensure_dependencies() -> None:
+    """Install packages from requirements.txt before third-party imports (e.g. Flask)."""
+    if os.environ.get("NYPOST_WORKFLOW_SKIP_PIP"):
+        return
+    if not REQUIREMENTS_TXT.is_file():
+        return
+    if not _pip_available():
+        if not _bootstrap_pip_with_ensurepip() or not _pip_available():
+            _print_pip_missing_help()
+            return
+    print("Installing dependencies from requirements.txt …", file=sys.stderr)
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--disable-pip-version-check",
+            "-r",
+            str(REQUIREMENTS_TXT),
+        ],
+        cwd=str(BASE_DIR),
+        stdout=sys.stderr,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    if proc.returncode != 0:
+        print(
+            "Warning: pip install failed; try manually: pip install -r requirements.txt",
+            file=sys.stderr,
+        )
+
+
+ensure_dependencies()
+
+try:
+    from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
+except ImportError as e:
+    print(
+        f"\nFlask is not installed ({e}). Install dependencies first, for example:\n"
+        f"  {sys.executable} -m pip install -r requirements.txt\n"
+        "If pip is missing, see the messages above or https://pip.pypa.io/en/stable/installation/\n",
+        file=sys.stderr,
+    )
+    raise SystemExit(1) from e
 
 # Year ranges for the web UI name dropdown (edit to match your project).
 TEAM: dict[str, dict] = {
