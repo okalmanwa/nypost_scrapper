@@ -3,7 +3,7 @@
 Collect article URLs from the New York Post site archive (month pages, then day pages).
 
 Writes a CSV with columns url, year, source and keeps a JSON state file next to the output
-so the run can be resumed after a stop. See --help for year range, months, workers, delay,
+so the run can be resumed after you stop. See --help for year range, months, workers, delay,
 and checkpoint options.
 
 Requires: requests, beautifulsoup4 (lxml).

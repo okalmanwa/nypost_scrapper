@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Local web UI for the NY Post workflow: pick a team member and a step, run the matching script.
+Local browser UI for the NY Post workflow: pick a team member and a step, run the matching script.
 
 Bind defaults to 127.0.0.1 only. Do not expose this app to the public internet without
 authentication and a proper deployment setup.

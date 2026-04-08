@@ -1,2 +1,3 @@
 # Format: domain,outlet,lean
+# Example row for the primary outlet used in this project.
 nypost.com,New York Post,right

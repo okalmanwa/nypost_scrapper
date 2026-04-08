@@ -17,3 +17,6 @@ build/
 .DS_Store
 .idea/
 .vscode/
+
+# Large local CSV exports (optional)
+nypost_articles_*_merged.csv

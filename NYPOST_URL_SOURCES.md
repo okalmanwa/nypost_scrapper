@@ -10,3 +10,5 @@ Any CSV with a `url` column can be used as `--input-urls` for `nypost_scrape.py`
 python nypost_scrape.py \
   --input-urls results/nypost_archive_urls_2000_2025.csv
 ```
+
+For the full pipeline, see `README.md`.

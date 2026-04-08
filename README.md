@@ -1,6 +1,6 @@
 # New York Post article workflow
 
-Scripts to collect article URLs from the NY Post archive, download HTML for each article, and clean the text for analysis. Python 3.9+ recommended.
+Scripts to collect article URLs from the NY Post archive, download HTML for each article, and clean the text for analysis. Python 3.9 or newer is recommended.
 
 ---
 

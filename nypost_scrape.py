@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Download nypost.com articles from a URL CSV: every dated article URL in the year range
-(except paths matching ``BLOCK_RE``), then fetch in parallel.
+(except paths matching ``BLOCK_RE``), then fetches in parallel.
 
 Requires: requests, beautifulsoup4 (lxml), urllib3. The ``is_opinion`` column is present and
 defaults to ``0`` (not classified); outlet and lean are fixed."""

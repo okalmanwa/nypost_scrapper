@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Clean scraped New York Post article CSVs for modeling or analysis.
+Clean scraped New York Post article CSVs for modeling and analysis.
 
 **Input:** Any CSV with at least ``title``, ``year``, ``outlet``, ``lean``, and ``content``
 (plus optional columns such as ``url``). Rows are read from ``--input``.
