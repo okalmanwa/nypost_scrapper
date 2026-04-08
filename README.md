@@ -14,7 +14,6 @@ python workflow_app.py
 
 Your default browser should open **http://127.0.0.1:5050** automatically after a second; open that URL yourself if it does not. The server listens only on your machine (`127.0.0.1`), not on the network. The job status page shows a **progress bar** (estimated from the log and, for scrape, the targets CSV row count) and streams the log text while the run is active.
 
-On startup, `workflow_app.py` runs `pip install -r requirements.txt` for the current interpreter (unless `NYPOST_WORKFLOW_SKIP_PIP=1`). If `pip` is missing, it tries `python -m ensurepip`; if that fails (common on some Linux packages), install pip from your OS or [pip’s install guide](https://pip.pypa.io/en/stable/installation/), then run `pip install -r requirements.txt` yourself.
 
 ### Pausing and resuming
 
