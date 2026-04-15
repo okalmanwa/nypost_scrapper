@@ -73,6 +73,36 @@ PHOTO_CREDIT_STANDALONE = re.compile(
     r"^[^.]{0,90}\s*[—/]\s*(Getty Images|AFP|Reuters|Agence France-Presse|AP|UPI)(\s*[—/]\s*Getty Images)?\s*$",
     re.I,
 )
+LEADING_BYLINE_LINE = re.compile(
+    r"^By\s+"
+    r"(?:(?:[A-Z][A-Za-z'\.-]+|[A-Z]\.)\s+){1,5}"
+    r"(?:[A-Z][A-Za-z'\.-]+|[A-Z]\.)"
+    r"(?:\s+(?:in|at)\s+[^\n]{1,80})?"
+    r"(?:\s+and\s+"
+    r"(?:(?:[A-Z][A-Za-z'\.-]+|[A-Z]\.)\s+){1,5}"
+    r"(?:[A-Z][A-Za-z'\.-]+|[A-Z]\.)"
+    r"(?:\s+(?:in|at)\s+[^\n]{1,80})?"
+    r")?"
+    r"\s*$"
+)
+LEADING_BYLINE_PREFIX = re.compile(
+    r"^By\s+"
+    r"(?:(?:[A-Z][A-Za-z'\.-]+|[A-Z]\.)\s+){1,4}"
+    r"(?:[A-Z][A-Za-z'\.-]+|[A-Z]\.)"
+    r"(?:\s+(?:in|at)\s+[A-Z][A-Za-z\-\s\.'’]{1,60})?"
+    r"(?:\s+and\s+"
+    r"(?:(?:[A-Z][A-Za-z'\.-]+|[A-Z]\.)\s+){1,4}"
+    r"(?:[A-Z][A-Za-z'\.-]+|[A-Z]\.)"
+    r"(?:\s+(?:in|at)\s+[A-Z][A-Za-z\-\s\.'’]{1,60})?"
+    r")?"
+    r"\s+"
+)
+LEADING_PHOTO_CREDIT_LINE = re.compile(
+    r"^(?:Photo by|Photo:|Image courtesy(?: of)?|Image credit:|Credit:)\s+"
+    r"[^\n]{0,180}\s*"
+    r"(?:Getty Images|Reuters|Associated Press|AP|UPI|AFP|Shutterstock)\b.*$",
+    re.I,
+)
 
 TRAILING_TICKETS = re.compile(r"\n[^\n]*Tickets?\s*:\s*\$\d+\s+to\s+\$\d+[^\n]*\s*$", re.IGNORECASE)
 
@@ -211,6 +241,26 @@ def _drop_nypost_meta_lines(s: str):
     return "\n".join(out).strip()
 
 
+def _strip_leading_byline_and_credits(s: str):
+    """Drop first-line bylines/credits that leak from the page header area."""
+    m = LEADING_BYLINE_PREFIX.match(s)
+    if m:
+        s = s[m.end() :].lstrip("—–- \t")
+    lines = s.split("\n")
+    changed = True
+    while lines and changed:
+        changed = False
+        first = lines[0].strip()
+        if not first:
+            lines.pop(0)
+            changed = True
+            continue
+        if LEADING_BYLINE_LINE.match(first) or LEADING_PHOTO_CREDIT_LINE.match(first):
+            lines.pop(0)
+            changed = True
+    return "\n".join(lines).strip()
+
+
 def _line_ends_sentence(line: str):
     t = line.rstrip()
     if not t:
@@ -297,6 +347,7 @@ def clean_content(text: str, title: Optional[str] = None):
     s = TRAILING_NYPOST.sub("", s).strip()
     s = _strip_leading_loop(s)
     s = _drop_nypost_meta_lines(s)
+    s = _strip_leading_byline_and_credits(s)
 
     s = _strip_trailing_tags(s)
     s = _normalize_paragraphs(s)
